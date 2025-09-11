@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>obec KRCHLEBY - termíny svozu odpadu</title>
+  <style>
+    :root{
+      --border:#d1d5db;
+      --muted:#6b7280;
+      --bg:#ffffff;
+      --panel:#ffffff;
+      --cal-h: 600px; /* dopočítává se v JS podle #calBox */
+    }
+    *{box-sizing:border-box}
+    html, body { height: 100%; }
+    body{
+      font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      margin:0; background:#f3f4f6; color:#111827;
+      display:flex; flex-direction:column;
+      overflow:hidden; /* zamezí svislému scrollu */
+    }
+    h1{margin:16px 0 8px; text-align:center}
+    .wrap{
+      max-width:1000px; width:100%;
+      margin:0 auto 16px;
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:10px;
+      display:flex; flex-direction:column; gap:8px;
+      flex:1;          /* vyplní zbytek okna */
+      min-height:0;
+    }
+    .toolbar{
+      display:flex; gap:10px; justify-content:center; align-items:center;
+      margin:0; color:#111827; flex-wrap:wrap
+    }
+    .toolbar select, .toolbar button{
+      border:1px solid var(--border); background:#fff; border-radius:8px;
+      padding:8px 10px; font-size:14px; cursor:pointer
+    }
+    .toolbar button{min-width:42px}
+
+    .month-label {
+      text-align: center;
+      font-size: 32px;        /* větší Září 2025 */
+      font-weight: 700;
+      letter-spacing: .2px;
+      margin: 4px 0 6px 0;
+    }
+
+    .legend{
+      display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:4px 0 4px
+    }
+    .legend span{display:inline-flex; align-items:center; gap:8px; color:#111827}
+    .legend .sw{display:inline-block; width:18px; height:10px; border-radius:999px}
+
+    /* BOX určuje dostupnou výšku pro tabulku */
+    #calBox{
+      flex:1;
+      min-height:0;
+      overflow:hidden;
+      display:flex;
+    }
+
+    .calendar{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+      height: var(--cal-h);   /* JS nastaví na výšku #calBox */
+      background:#fff;
+    }
+    .calendar th, .calendar td{
+      border:1px solid var(--border);
+      text-align:left; vertical-align:top; width:14.285%;
+      padding:8px 8px 6px 8px;
+      background:#fff;
+    }
+    /* ↓↓↓ HLAVIČKA UŽŠÍ: pevně 40px, tělo dostane zbytek */
+    .calendar thead th {
+      height: 40px;
+      background:#f9fafb;
+      text-align:center; font-weight:600
+    }
+    .calendar tbody td { height: calc((var(--cal-h) - 40px) / 6); }
+
+    /* Víkendy: 6. (So) a 7. (Ne) sloupec */
+    .calendar thead th:nth-child(6),
+    .calendar thead th:nth-child(7){
+      color:#dc2626; /* červená pro So/Ne v hlavičce */
+    }
+    .calendar tbody td:nth-child(6),
+    .calendar tbody td:nth-child(7){
+      background:#fef2f2;          /* jemné pozadí víkendů */
+      border-color:#f3d1d1;        /* jemnější okraj */
+    }
+    /* Pokud má víkendová buňka událost, ještě malinko zvýraznit */
+    .calendar tbody td:nth-child(6).has-event,
+    .calendar tbody td:nth-child(7).has-event{
+      background:#fdecec;          /* o chlup výraznější */
+      border-color:#efbdbd;
+    }
+
+    .daynum{font-weight:600; color:#111827; margin-bottom:6px}
+    .event{
+      display:flex; justify-content:center; align-items:center;
+      margin:4px 0 0; padding:3px 8px; border-radius:10px;
+      color:#fff; font-size:13px; line-height:1.2; max-width:100%;
+      overflow:hidden; white-space:nowrap; text-overflow:ellipsis; text-align:center;
+    }
+    .smesny{background:#111}
+    .bio{background:#6b3b00}
+    .papir{background:#0057ff}
+    .plasty{background:#ffe600; color:#111; border:1px solid #d1a800}
+    .sklo{background:#1c7c1a}
+    .kovy{background:#7a7a7a}
+
+    /* dnešní den zvýrazněn jemným rámečkem */
+    .calendar td.today{
+      box-shadow: inset 0 0 0 2px #2563eb;
+    }
+
+    /* jemný fade při přepnutí měsíce */
+    #calBody{ opacity:1; transition: opacity 160ms ease; }
+    #calBody.fading{ opacity:0; }
+
+    /* Hlavní title na dva řádky */
+    .title-line-1{ font-size:40px; font-weight:700; line-height:1.2; }
+    .title-line-2{ font-size:38px; font-weight:400; line-height:1.3; }
+
+    @media (max-width:720px){
+      .title-line-1{ font-size:30px; }
+      .title-line-2{ font-size:26px; }
+      .month-label{ font-size:24px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>
+    <div class="title-line-1">obec KRCHLEBY</div>
+    <div class="title-line-2">Termíny svozu odpadu</div>
+  </h1>
+
+  <div class="wrap" id="wrap">
+    <!-- Měsíc/rok nad toolbar, vycentrovaný a větší -->
+    <div id="monthLabel" class="month-label"></div>
+
+    <div class="toolbar" id="toolbar">
+      <button id="prevBtn" title="Předchozí měsíc / dvojklik: rok zpět">&#8592;</button>
+      <select id="monthSel" aria-label="Měsíc"></select>
+      <select id="yearSel" aria-label="Rok"></select>
+      <button id="nextBtn" title="Další měsíc / dvojklik: rok vpřed">&#8594;</button>
+      <button id="todayBtn" title="Zpět na aktuální měsíc">Dnes</button>
+    </div>
+
+    <div class="legend" id="legend" aria-hidden="true">
+      <span><i class="sw smesny" style="background:#111"></i> Směsný</span>
+      <span><i class="sw bio"    style="background:#6b3b00"></i> Bio</span>
+      <span><i class="sw papir"  style="background:#0057ff"></i> Papír</span>
+      <span><i class="sw plasty" style="background:#ffe600;border:1px solid #d1a800"></i> Plasty</span>
+      <span><i class="sw sklo"   style="background:#1c7c1a"></i> Sklo</span>
+      <span><i class="sw kovy"   style="background:#7a7a7a"></i> Kovy</span>
+    </div>
+
+    <!-- box určuje dostupnou výšku pro tabulku -->
+    <div id="calBox">
+      <table class="calendar" id="cal">
+        <thead>
+          <tr>
+            <th>Po</th><th>Út</th><th>St</th><th>Čt</th><th>Pá</th><th>So</th><th>Ne</th>
+          </tr>
+        </thead>
+        <tbody id="calBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+(function(){
+  // ======= DATA: termíny svozů 2025 =======
+  const KOMUNAL = [
+    "2025-01-10","2025-01-27","2025-02-10","2025-02-24",
+    "2025-03-10","2025-03-24","2025-04-07","2025-04-18",
+    "2025-05-05","2025-05-19","2025-06-02","2025-06-16","2025-06-30",
+    "2025-07-14","2025-07-28","2025-08-11","2025-08-25",
+    "2025-09-08","2025-09-22","2025-10-06","2025-10-20",
+    "2025-11-03","2025-11-14","2025-12-01","2025-12-15","2025-12-29"
+  ];
+  const PLASTY = [
+    "2025-01-23","2025-02-20","2025-03-20","2025-04-17","2025-05-15","2025-06-12",
+    "2025-07-10","2025-08-07","2025-09-04","2025-10-02","2025-10-31","2025-11-27","2025-12-24"
+  ];
+
+  const events = {};
+  KOMUNAL.forEach(d => (events[d] ??= []).push({ type: "smesny", label: "Směsný odpad" }));
+  PLASTY.forEach(d  => (events[d]  ??= []).push({ type: "plasty", label: "Plasty" }));
+
+  const monthNames = ["Leden","Únor","Březen","Duben","Květen","Červen","Červenec","Srpen","Září","Říjen","Listopad","Prosinec"];
+
+  const monthSel = document.getElementById("monthSel");
+  const yearSel = document.getElementById("yearSel");
+  const label = document.getElementById("monthLabel");
+  const body = document.getElementById("calBody");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const todayBtn= document.getElementById("todayBtn");
+  const calBox  = document.getElementById("calBox");
+
+  // Naplnění selektorů
+  const today = new Date();
+  const NOW_MONTH = today.getMonth();
+  const NOW_YEAR  = today.getFullYear();
+  const TODAY_KEY = today.toISOString().slice(0,10); // YYYY-MM-DD
+
+  const CY = NOW_YEAR;
+  for (let m=0; m<12; m++){
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.textContent = monthNames[m];
+    monthSel.appendChild(opt);
+  }
+  for (let y=CY-3; y<=CY+3; y++){
+    const opt = document.createElement("option");
+    opt.value = y;
+    opt.textContent = y;
+    yearSel.appendChild(opt);
+  }
+
+  // Výchozí: aktuální měsíc
+  let selMonth = NOW_MONTH;
+  let selYear  = NOW_YEAR;
+  monthSel.value = selMonth;
+  yearSel.value  = selYear;
+
+  function syncSelectors(){
+    monthSel.value = selMonth;
+    yearSel.value  = selYear;
+  }
+
+  function render(y, m){
+    // fade out
+    body.classList.add('fading');
+
+    setTimeout(() => {
+      label.textContent = monthNames[m] + " " + y;
+      body.innerHTML = "";
+
+      const daysInMonth = new Date(y, m+1, 0).getDate();
+      const first = new Date(y, m, 1);
+      let startIdx = first.getDay(); // 0=Ne .. 6=So
+      startIdx = (startIdx === 0 ? 6 : startIdx - 1); // Po=0 .. Ne=6
+
+      let day = 1;
+      for(let row=0; row<6; row++){
+        const tr = document.createElement("tr");
+        for(let col=0; col<7; col++){
+          const td = document.createElement("td");
+          if ((row === 0 && col < startIdx) || day > daysInMonth){
+            td.innerHTML = "&nbsp;";
+          } else {
+            const d = String(day).padStart(2,"0");
+            const mm = String(m+1).padStart(2,"0");
+            const key = `${y}-${mm}-${d}`;
+
+            // dnešní den zvýraznit
+            if (key === TODAY_KEY) td.classList.add('today');
+
+            const top = document.createElement("div");
+            top.className = "daynum";
+            top.textContent = day;
+            td.appendChild(top);
+
+            if (events[key]){
+              // označ víkendovou buňku s událostí pro výraznější pozadí
+              if (col >= 5) td.classList.add('has-event'); // 0=Po ... 6=Ne, takže 5=So, 6=Ne
+              events[key].forEach(ev => {
+                const a = document.createElement("span");
+                a.className = `event ${ev.type}`;
+                a.textContent = ev.label || ev.type;
+                a.title = ev.label || ev.type; // tooltip
+                td.appendChild(a);
+              });
+            }
+            day++;
+          }
+          tr.appendChild(td);
+        }
+        body.appendChild(tr);
+        if(day > daysInMonth) break;
+      }
+
+      resizeCalendar(); // po vykreslení přepočítej výšku
+      requestAnimationFrame(() => body.classList.remove('fading')); // fade in
+    }, 80);
+  }
+
+  // Výška tabulky = vnitřní výška #calBox
+  function resizeCalendar(){
+    const available = Math.max(280, Math.floor(calBox.clientHeight));
+    document.documentElement.style.setProperty('--cal-h', available + 'px');
+  }
+
+  // Odlišení single vs. double click
+  function attachClickWithDbl(element, onSingle, onDouble, delay = 250){
+    let timer = null;
+    element.addEventListener('click', () => {
+      if (timer) return;
+      timer = setTimeout(() => { onSingle(); timer = null; }, delay);
+    });
+    element.addEventListener('dblclick', () => {
+      if (timer) { clearTimeout(timer); timer = null; }
+      onDouble();
+    });
+  }
+
+  // Ovládání selectů
+  monthSel.addEventListener("change", () => { selMonth = +monthSel.value; render(selYear, selMonth); });
+  yearSel.addEventListener("change",  () => { selYear  = +yearSel.value; render(selYear, selMonth); });
+
+  // Šipky: single = +/- 1 měsíc, double = +/- 1 rok
+  attachClickWithDbl(prevBtn,
+    () => { selMonth--; if (selMonth < 0){ selMonth = 11; selYear--; } syncSelectors(); render(selYear, selMonth); },
+    () => { selYear--; syncSelectors(); render(selYear, selMonth); }
+  );
+  attachClickWithDbl(nextBtn,
+    () => { selMonth++; if (selMonth > 11){ selMonth = 0; selYear++; } syncSelectors(); render(selYear, selMonth); },
+    () => { selYear++; syncSelectors(); render(selYear, selMonth); }
+  );
+
+  // Tlačítko Dnes
+  todayBtn.addEventListener('click', () => {
+    selMonth = NOW_MONTH;
+    selYear  = NOW_YEAR;
+    syncSelectors(); render(selYear, selMonth);
+  });
+
+  // Reakce na změny velikosti
+  window.addEventListener('resize', resizeCalendar);
+  window.addEventListener('orientationchange', resizeCalendar);
+
+  // první vykreslení
+  render(selYear, selMonth);
+})();
+</script>
+</body>
+</html>
