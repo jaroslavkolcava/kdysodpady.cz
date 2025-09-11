@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>Svoz odpadů – Rozcestník</title>
+  <style>
+    :root{
+      --zabreh:#0a74da;
+      --krchleby:#2fbf71;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family:"Segoe UI", Tahoma, sans-serif;
+      background:linear-gradient(135deg,#dfe9f3 0%,#ffffff 100%);
+      min-height:100vh;
+      margin:0;
+      display:flex;align-items:center;justify-content:center;
+      padding:24px; overflow:hidden;
+    }
+    .container{max-width:960px;width:100%;text-align:center;animation:fadeInUp 0.9s ease-out}
+    h1{
+      font-size:3.2em; font-weight:800; letter-spacing:.5px; color:#1f2937;
+      margin:0 0 128px;
+      animation:fadeInUp 0.9s ease-out;
+    }
+    .cards{display:flex;justify-content:center;gap:40px;flex-wrap:wrap}
+    .card{
+      --accent:#ccc;
+      background:#fff;
+      text-decoration:none; color:#111827;
+      border-radius:24px;
+      padding:48px 36px;
+      width:280px; max-width:320px;
+      box-shadow:0 10px 30px rgba(0,0,0,.12);
+      transition:transform .3s, box-shadow .3s;
+      display:flex; flex-direction:column; align-items:center; gap:16px;
+      position:relative; isolation:isolate;
+      opacity:0; animation:fadeInUp 0.9s ease-out forwards;
+    }
+    .card::before{
+      content:""; position:absolute; inset:0 0 auto 0; height:8px;
+      background:var(--accent); border-top-left-radius:24px; border-top-right-radius:24px;
+      z-index:-1;
+    }
+    .card:hover{transform:translateY(-10px); box-shadow:0 18px 40px rgba(0,0,0,.18)}
+    .label{font-size:1.9em; font-weight:900; text-transform:uppercase; letter-spacing:.5px}
+    .subtitle{font-size:.95em; color:#6b7280}
+
+    /* specifické barvy */
+    .zabreh{--accent:var(--zabreh)}
+    .krchleby{--accent:var(--krchleby)}
+
+    /* „štít“ – neutrální, bez obecního znaku */
+    .shield{width:90px;height:90px}
+    .shield text{font-family:inherit; font-weight:900; font-size:44px; fill:#fff; dominant-baseline:middle; text-anchor:middle}
+
+    /* animace */
+    @keyframes fadeInUp{
+      from{opacity:0; transform:translateY(40px)}
+      to{opacity:1; transform:translateY(0)}
+    }
+    .card:nth-child(1){animation-delay:.4s}
+    .card:nth-child(2){animation-delay:.7s}
+
+    /* mobil */
+    @media (max-width:640px){
+      h1{font-size:2.2em; margin-bottom:72px}
+      .cards{gap:20px}
+      .card{width:100%; max-width:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Vyberte obec pro svoz odpadů</h1>
+
+    <div class="cards">
+      <a class="card zabreh" href="zabreh.html" aria-label="Zábřeh – přejít na svoz">
+        <!-- Abstraktní štít s iniciálou Z -->
+        <svg class="shield" viewBox="0 0 100 120" role="img" aria-label="Abstraktní štít Zábřeh">
+          <defs>
+            <linearGradient id="gZ" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#0a74da"/>
+              <stop offset="1" stop-color="#064c97"/>
+            </linearGradient>
+          </defs>
+          <path d="M10,10 h80 v48 c0,28 -20,44 -40,52 c-20,-8 -40,-24 -40,-52 z" fill="url(#gZ)"/>
+          <text x="50" y="58">Z</text>
+        </svg>
+        <div class="label">Zábřeh</div>
+        <div class="subtitle">Kalendář a informace</div>
+      </a>
+
+      <a class="card krchleby" href="krchleby.html" aria-label="Krchleby – přejít na svoz">
+        <!-- Abstraktní štít s iniciálou K -->
+        <svg class="shield" viewBox="0 0 100 120" role="img" aria-label="Abstraktní štít Krchleby">
+          <defs>
+            <linearGradient id="gK" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#2fbf71"/>
+              <stop offset="1" stop-color="#198a4f"/>
+            </linearGradient>
+          </defs>
+          <path d="M10,10 h80 v48 c0,28 -20,44 -40,52 c-20,-8 -40,-24 -40,-52 z" fill="url(#gK)"/>
+          <text x="50" y="58">K</text>
+        </svg>
+        <div class="label">Krchleby</div>
+        <div class="subtitle">Kalendář a informace</div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
