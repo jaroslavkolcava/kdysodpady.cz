@@ -2,6 +2,7 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Svoz odpadů – Rozcestník</title>
   <style>
     :root{
@@ -71,9 +72,7 @@
       50%  { transform: scale(0.95); }
       100% { transform: scale(1); }
     }
-    .card:active {
-      animation: pulseTap 0.25s ease;
-    }
+    .card:active { animation: pulseTap 0.25s ease; }
 
     /* Mobilní verze */
     @media (max-width:640px){
@@ -84,7 +83,7 @@
         font-size:2em;
         margin-bottom:50px;
         padding: 0 10px;
-        white-space: normal; /* dovolí zalomení na 2 řádky */
+        white-space: normal; /* dovolí zalomení textu */
       }
       .cards{
         flex-direction:column; /* karty pod sebe */
@@ -108,9 +107,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>
-      Vyberte obec pro svoz odpadů
-    </h1>
+    <h1>Vyberte obec pro svoz odpadů</h1>
 
     <div class="cards">
       <a class="card zabreh" href="zabreh.html">
