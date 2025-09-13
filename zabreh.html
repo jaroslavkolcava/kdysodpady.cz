@@ -3,14 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Obec Zábřeh - termíny svozu odpadu</title>
+  <title>Zábřeh – termíny svozu odpadu</title>
   <style>
     :root{
       --border:#d1d5db;
       --muted:#6b7280;
-      --bg:#ffffff;
       --panel:#ffffff;
-      --cal-h: 600px; /* dopočítává se v JS podle #calBox */
+      --cal-h: 600px;
     }
     *{box-sizing:border-box}
     html, body { height: 100%; }
@@ -29,115 +28,85 @@
       border-radius:10px;
       padding:10px;
       display:flex; flex-direction:column; gap:8px;
-      flex:1;
-      min-height:0;
+      flex:1; min-height:0;
     }
+    .topbar {
+      display:flex; justify-content:space-between; align-items:center;
+      margin:8px 0 12px; padding:0 10px;
+    }
+    .month-label {
+      font-size:28px; font-weight:700; text-align:center; flex:1;
+    }
+    .ics-btn, .trasa-sel {
+      border:2px solid #2563eb; border-radius:8px;
+      padding:6px 12px; font-size:14px; font-weight:600;
+      cursor:pointer;
+    }
+    .ics-btn { background:#2563eb; color:#fff; }
+    .ics-btn:hover { background:#1e4f9b; }
+    .trasa-sel { background:#fff; color:#2563eb; }
+
     .toolbar{
-      display:flex; gap:10px; justify-content:center; align-items:center;
-      margin:0; color:#111827; flex-wrap:wrap
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap
     }
     .toolbar select, .toolbar button{
       border:1px solid var(--border); background:#fff; border-radius:8px;
       padding:8px 10px; font-size:14px; cursor:pointer
     }
-    .toolbar button{min-width:42px}
-    .month-label {
-      text-align: center;
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: .2px;
-      margin: 4px 0 6px 0;
-    }
-    .legend{
-      display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:4px 0 4px
-    }
-    .legend span{display:inline-flex; align-items:center; gap:8px; color:#111827}
-    .legend .sw{display:inline-block; width:18px; height:10px; border-radius:999px}
-    #calBox{
-      flex:1;
-      min-height:0;
-      overflow:hidden;
-      display:flex;
-    }
+
+    .legend{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:4px 0}
+    .legend span{display:inline-flex; align-items:center; gap:8px;}
+    .legend .sw{width:18px; height:10px; border-radius:999px}
+
+    #calBox{flex:1; min-height:0; overflow:hidden; display:flex;}
     .calendar{
-      width:100%;
-      border-collapse:collapse;
-      table-layout:fixed;
-      height: var(--cal-h);
-      background:#fff;
+      width:100%; border-collapse:collapse; table-layout:fixed;
+      height:var(--cal-h); background:#fff;
     }
     .calendar th, .calendar td{
-      border:1px solid var(--border);
-      text-align:left; vertical-align:top; width:14.285%;
-      padding:8px 8px 6px 8px;
-      background:#fff;
+      border:1px solid var(--border); text-align:left; vertical-align:top;
+      width:14.285%; padding:8px 8px 6px;
     }
-    .calendar thead th {
-      height: 40px;
-      background:#f9fafb;
-      text-align:center; font-weight:600
-    }
+    .calendar thead th{height:40px; background:#f9fafb; font-weight:600}
     .calendar tbody td { height: calc((var(--cal-h) - 40px) / 6); }
-    .calendar thead th:nth-child(6),
-    .calendar thead th:nth-child(7){
-      color:#dc2626;
-    }
-    .calendar tbody td:nth-child(6),
-    .calendar tbody td:nth-child(7){
-      background:#fef2f2;
-      border-color:#f3d1d1;
-    }
-    .calendar tbody td:nth-child(6).has-event,
-    .calendar tbody td:nth-child(7).has-event{
-      background:#fdecec;
-      border-color:#efbdbd;
-    }
-    .daynum{font-weight:600; color:#111827; margin-bottom:6px}
-    .event{
-      display:flex; justify-content:center; align-items:center;
-      margin:4px 0 0; padding:3px 8px; border-radius:10px;
-      color:#fff; font-size:13px; line-height:1.2; max-width:100%;
-      overflow:hidden; white-space:nowrap; text-overflow:ellipsis; text-align:center;
-    }
+    .daynum{font-weight:600; margin-bottom:6px}
+    .event{display:block; margin:3px 0; padding:3px 8px; border-radius:8px;
+      color:#fff; font-size:13px; text-align:center;}
     .smesny{background:#111}
     .bio{background:#6b3b00}
     .papir{background:#0057ff}
     .plasty{background:#ffe600; color:#111; border:1px solid #d1a800}
     .sklo{background:#1c7c1a}
     .kovy{background:#7a7a7a}
-    .calendar td.today{ box-shadow: inset 0 0 0 2px #2563eb; }
-    #calBody{ opacity:1; transition: opacity 160ms ease; }
-    #calBody.fading{ opacity:0; }
-    .title-line-1{ font-size:40px; font-weight:700; line-height:1.2; }
-    .title-line-2{ font-size:38px; font-weight:400; line-height:1.3; }
-    @media (max-width:720px){
-      .title-line-1{ font-size:30px; }
-      .title-line-2{ font-size:26px; }
-      .month-label{ font-size:24px; }
-    }
+    .calendar td.today{box-shadow: inset 0 0 0 2px #2563eb;}
   </style>
 </head>
 <body>
   <h1>
-    <div class="title-line-1">Obec Zábřeh</div>
-    <div class="title-line-2">Termíny svozu odpadu</div>
+    <div style="font-size:36px;font-weight:700;">Zábřeh</div>
+    <div style="font-size:30px;font-weight:400;">Termíny svozu odpadu</div>
   </h1>
 
-  <div class="wrap" id="wrap">
-    <div id="monthLabel" class="month-label"></div>
-    <div class="toolbar" id="toolbar">
+  <div class="wrap">
+    <div class="topbar">
+      <button id="icsBtn" class="ics-btn">Stáhnout .ics</button>
+      <div id="monthLabel" class="month-label"></div>
+      <select id="trasaSel" class="trasa-sel">
+        <option value="I">Trasa I</option>
+        <option value="II">Trasa II</option>
+        <option value="III">Trasa III</option>
+        <option value="IV">Trasa IV</option>
+      </select>
+    </div>
+
+    <div class="toolbar">
       <button id="prevBtn">&#8592;</button>
       <select id="monthSel"></select>
       <select id="yearSel"></select>
       <button id="nextBtn">&#8594;</button>
       <button id="todayBtn">Dnes</button>
-      <select id="trasaSel">
-        <option value="trasa1">Trasa I</option>
-        <option value="trasa2">Trasa II</option>
-        <option value="trasa3">Trasa III</option>
-        <option value="trasa4">Trasa IV</option>
-      </select>
     </div>
+
     <div class="legend">
       <span><i class="sw smesny"></i> Směsný</span>
       <span><i class="sw bio"></i> Bio</span>
@@ -146,12 +115,11 @@
       <span><i class="sw sklo"></i> Sklo</span>
       <span><i class="sw kovy"></i> Kovy</span>
     </div>
+
     <div id="calBox">
       <table class="calendar">
         <thead>
-          <tr>
-            <th>Po</th><th>Út</th><th>St</th><th>Čt</th><th>Pá</th><th>So</th><th>Ne</th>
-          </tr>
+          <tr><th>Po</th><th>Út</th><th>St</th><th>Čt</th><th>Pá</th><th>So</th><th>Ne</th></tr>
         </thead>
         <tbody id="calBody"></tbody>
       </table>
@@ -160,113 +128,101 @@
 
 <script>
 (function(){
-  // ======= DATA: Svozové termíny 2025 pro Zábřeh =======
-  // ⚠️ Zde bude potřeba doplnit přesné datumy z PDF pro každou trasu (I–IV).
-  // Zatím ukázka pro Trasu I – zbytek doplníme společně.
+  // === DATA pro Zábřeh – zatím prázdné, doplníme ===
   const EVENTS = {
-    trasa1: {
-      smesny: ["2025-01-10","2025-01-24","2025-02-07"],
-      plasty: ["2025-01-17","2025-02-14"],
-      papir:  ["2025-01-31","2025-02-28"],
-      bio:    ["2025-03-15","2025-03-29"],
-      sklo:   ["2025-04-12","2025-07-12","2025-10-11"],
-      kovy:   ["2025-05-20","2025-09-16","2025-12-16"]
-    },
-    trasa2: { smesny:[], plasty:[], papir:[], bio:[], sklo:[], kovy:[] },
-    trasa3: { smesny:[], plasty:[], papir:[], bio:[], sklo:[], kovy:[] },
-    trasa4: { smesny:[], plasty:[], papir:[], bio:[], sklo:[], kovy:[] }
+    I: { smesny:[], plasty:[], papir:[], bio:[], sklo:[], kovy:[] },
+    II:{ smesny:[], plasty:[], papir:[], bio:[], sklo:[], kovy:[] },
+    III:{ smesny:[], plasty:[], papir:[], bio:[], sklo:[], kovy:[] },
+    IV:{ smesny:[], plasty:[], papir:[], bio:[], sklo:[], kovy:[] }
   };
 
+  let currentTrasa = "I";
+
   const monthNames = ["Leden","Únor","Březen","Duben","Květen","Červen","Červenec","Srpen","Září","Říjen","Listopad","Prosinec"];
-  const monthSel = document.getElementById("monthSel");
-  const yearSel = document.getElementById("yearSel");
-  const label = document.getElementById("monthLabel");
-  const body = document.getElementById("calBody");
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  const todayBtn= document.getElementById("todayBtn");
-  const calBox  = document.getElementById("calBox");
-  const trasaSel= document.getElementById("trasaSel");
+  const monthSel=document.getElementById("monthSel");
+  const yearSel=document.getElementById("yearSel");
+  const label=document.getElementById("monthLabel");
+  const body=document.getElementById("calBody");
+  const prevBtn=document.getElementById("prevBtn");
+  const nextBtn=document.getElementById("nextBtn");
+  const todayBtn=document.getElementById("todayBtn");
+  const calBox=document.getElementById("calBox");
+  const icsBtn=document.getElementById("icsBtn");
+  const trasaSel=document.getElementById("trasaSel");
 
-  const today = new Date();
-  const NOW_MONTH = today.getMonth();
-  const NOW_YEAR  = today.getFullYear();
-  const TODAY_KEY = today.toISOString().slice(0,10);
+  const today=new Date();
+  const NOW_MONTH=today.getMonth();
+  const NOW_YEAR=today.getFullYear();
+  const TODAY_KEY=today.toISOString().slice(0,10);
 
-  const CY = NOW_YEAR;
-  for (let m=0; m<12; m++){ let opt = document.createElement("option"); opt.value = m; opt.textContent = monthNames[m]; monthSel.appendChild(opt); }
-  for (let y=CY-3; y<=CY+3; y++){ let opt = document.createElement("option"); opt.value = y; opt.textContent = y; yearSel.appendChild(opt); }
+  for(let m=0;m<12;m++){let opt=document.createElement("option");opt.value=m;opt.textContent=monthNames[m];monthSel.appendChild(opt);}
+  for(let y=NOW_YEAR-3;y<=NOW_YEAR+3;y++){let opt=document.createElement("option");opt.value=y;opt.textContent=y;yearSel.appendChild(opt);}
+  let selMonth=NOW_MONTH, selYear=NOW_YEAR;
+  monthSel.value=selMonth; yearSel.value=selYear;
 
-  let selMonth = NOW_MONTH;
-  let selYear  = NOW_YEAR;
-  let selTrasa = "trasa1";
-  monthSel.value = selMonth; yearSel.value  = selYear;
-
-  function render(y, m){
-    body.classList.add('fading');
-    setTimeout(() => {
-      label.textContent = monthNames[m] + " " + y;
-      body.innerHTML = "";
-
-      const daysInMonth = new Date(y, m+1, 0).getDate();
-      const first = new Date(y, m, 1);
-      let startIdx = first.getDay(); startIdx = (startIdx === 0 ? 6 : startIdx - 1);
-
-      let day = 1;
-      for(let row=0; row<6; row++){
-        const tr = document.createElement("tr");
-        for(let col=0; col<7; col++){
-          const td = document.createElement("td");
-          if ((row === 0 && col < startIdx) || day > daysInMonth){
-            td.innerHTML = "&nbsp;";
-          } else {
-            const d = String(day).padStart(2,"0");
-            const mm = String(m+1).padStart(2,"0");
-            const key = `${y}-${mm}-${d}`;
-            if (key === TODAY_KEY) td.classList.add('today');
-            const top = document.createElement("div");
-            top.className = "daynum";
-            top.textContent = day;
-            td.appendChild(top);
-
-            const evTypes = ["smesny","plasty","papir","bio","sklo","kovy"];
-            evTypes.forEach(t => {
-              if (EVENTS[selTrasa][t].includes(key)){
-                if (col >= 5) td.classList.add('has-event');
-                const a = document.createElement("span");
-                a.className = `event ${t}`;
-                a.textContent = t.charAt(0).toUpperCase()+t.slice(1);
-                td.appendChild(a);
-              }
-            });
-            day++;
-          }
-          tr.appendChild(td);
+  function render(y,m){
+    label.textContent=monthNames[m]+" "+y;
+    body.innerHTML="";
+    const daysInMonth=new Date(y,m+1,0).getDate();
+    const first=new Date(y,m,1);
+    let startIdx=first.getDay(); startIdx=(startIdx===0?6:startIdx-1);
+    let day=1;
+    for(let r=0;r<6;r++){
+      const tr=document.createElement("tr");
+      for(let c=0;c<7;c++){
+        const td=document.createElement("td");
+        if((r===0&&c<startIdx)||day>daysInMonth){td.innerHTML="&nbsp;";}
+        else{
+          const d=String(day).padStart(2,"0");
+          const mm=String(m+1).padStart(2,"0");
+          const key=`${y}-${mm}-${d}`;
+          if(key===TODAY_KEY) td.classList.add("today");
+          const top=document.createElement("div"); top.className="daynum"; top.textContent=day; td.appendChild(top);
+          Object.keys(EVENTS[currentTrasa]).forEach(type=>{
+            if(EVENTS[currentTrasa][type].includes(key)){
+              const ev=document.createElement("span");
+              ev.className=`event ${type}`;
+              ev.textContent=type.charAt(0).toUpperCase()+type.slice(1);
+              td.appendChild(ev);
+            }
+          });
+          day++;
         }
-        body.appendChild(tr);
-        if(day > daysInMonth) break;
+        tr.appendChild(td);
       }
-      resizeCalendar(); requestAnimationFrame(() => body.classList.remove('fading'));
-    }, 80);
+      body.appendChild(tr);
+      if(day>daysInMonth) break;
+    }
   }
+  monthSel.addEventListener("change",()=>{selMonth=+monthSel.value;render(selYear,selMonth);});
+  yearSel.addEventListener("change",()=>{selYear=+yearSel.value;render(selYear,selMonth);});
+  prevBtn.addEventListener("click",()=>{selMonth--;if(selMonth<0){selMonth=11;selYear--;}monthSel.value=selMonth;yearSel.value=selYear;render(selYear,selMonth);});
+  nextBtn.addEventListener("click",()=>{selMonth++;if(selMonth>11){selMonth=0;selYear++;}monthSel.value=selMonth;yearSel.value=selYear;render(selYear,selMonth);});
+  todayBtn.addEventListener("click",()=>{selMonth=NOW_MONTH;selYear=NOW_YEAR;monthSel.value=selMonth;yearSel.value=selYear;render(selYear,selMonth);});
+  trasaSel.addEventListener("change",()=>{currentTrasa=trasaSel.value;render(selYear,selMonth);});
 
-  function resizeCalendar(){ const available = Math.max(280, Math.floor(calBox.clientHeight)); document.documentElement.style.setProperty('--cal-h', available + 'px'); }
-  function syncSelectors(){ monthSel.value = selMonth; yearSel.value  = selYear; }
-  function attachClickWithDbl(el, single, dbl, delay=250){ let t=null; el.addEventListener('click',()=>{ if(t) return; t=setTimeout(()=>{single(); t=null;},delay)}); el.addEventListener('dblclick',()=>{ if(t){clearTimeout(t);t=null;} dbl(); }); }
+  // export .ics jen pro aktuální trasu
+  icsBtn.addEventListener("click",()=>{
+    let ics="BEGIN:VCALENDAR\nVERSION:2.0\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n";
+    Object.keys(EVENTS[currentTrasa]).forEach(type=>{
+      EVENTS[currentTrasa][type].forEach(d=>{
+        ics+="BEGIN:VEVENT\n";
+        ics+=`SUMMARY:${type}\n`;
+        ics+=`DTSTART;VALUE=DATE:${d.replace(/-/g,"")}\n`;
+        ics+=`DTEND;VALUE=DATE:${d.replace(/-/g,"")}\n`;
+        ics+="END:VEVENT\n";
+      });
+    });
+    ics+="END:VCALENDAR";
+    const blob=new Blob([ics],{type:"text/calendar"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download=`svoz-zabreh-trasa-${currentTrasa}.ics`;
+    a.click();
+  });
 
-  monthSel.addEventListener("change", () => { selMonth = +monthSel.value; render(selYear, selMonth); });
-  yearSel.addEventListener("change",  () => { selYear  = +yearSel.value; render(selYear, selMonth); });
-  trasaSel.addEventListener("change", () => { selTrasa = trasaSel.value; render(selYear, selMonth); });
-
-  attachClickWithDbl(prevBtn, ()=>{ selMonth--; if (selMonth<0){selMonth=11; selYear--;} syncSelectors(); render(selYear, selMonth); }, ()=>{ selYear--; syncSelectors(); render(selYear, selMonth); });
-  attachClickWithDbl(nextBtn, ()=>{ selMonth++; if (selMonth>11){selMonth=0; selYear++;} syncSelectors(); render(selYear, selMonth); }, ()=>{ selYear++; syncSelectors(); render(selYear, selMonth); });
-
-  todayBtn.addEventListener('click', () => { selMonth=NOW_MONTH; selYear=NOW_YEAR; syncSelectors(); render(selYear, selMonth); });
-  window.addEventListener('resize', resizeCalendar);
-  window.addEventListener('orientationchange', resizeCalendar);
-  render(selYear, selMonth);
+  render(selYear,selMonth);
 })();
 </script>
 </body>
 </html>
-
