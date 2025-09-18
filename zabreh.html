@@ -31,7 +31,6 @@
       flex:1; min-height:0;
     }
 
-    /* horní lišta: ICS vlevo — měsíc uprostřed — Trasa vpravo */
     .topbar {
       display:flex; justify-content:space-between; align-items:center;
       margin:8px 0 12px; padding:0 10px;
@@ -91,7 +90,6 @@
     }
     .calendar tbody td { height: calc((var(--cal-h) - 40px) / 6); }
 
-    /* Víkendy */
     .calendar thead th:nth-child(6),
     .calendar thead th:nth-child(7){ color:#dc2626; }
     .calendar tbody td:nth-child(6),
@@ -134,13 +132,8 @@
 
   <div class="wrap" id="wrap">
     <div class="topbar">
-      <!-- Vlevo export .ics (jen pro vybranou trasu) -->
       <button id="icsBtn" class="btn btn-primary" title="Stáhnout kalendář pro vybranou trasu">Stáhnout .ics</button>
-
-      <!-- Uprostřed měsíc/rok -->
       <div id="monthLabel" class="month-label"></div>
-
-      <!-- Vpravo výběr trasy -->
       <select id="trasaSel" class="select" title="Vyberte trasu">
         <option value="I" selected>Trasa I</option>
         <option value="II">Trasa II</option>
@@ -150,14 +143,14 @@
     </div>
 
     <div class="toolbar" id="toolbar">
-      <button id="prevBtn" title="Předchozí měsíc / dvojklik: rok zpět">&#8592;</button>
-      <select id="monthSel" aria-label="Měsíc"></select>
-      <select id="yearSel" aria-label="Rok"></select>
-      <button id="nextBtn" title="Další měsíc / dvojklik: rok vpřed">&#8594;</button>
-      <button id="todayBtn" title="Zpět na aktuální měsíc">Dnes</button>
+      <button id="prevBtn">&#8592;</button>
+      <select id="monthSel"></select>
+      <select id="yearSel"></select>
+      <button id="nextBtn">&#8594;</button>
+      <button id="todayBtn">Dnes</button>
     </div>
 
-    <div class="legend" aria-hidden="true">
+    <div class="legend">
       <span><i class="sw smesny" style="background:#111"></i> Směsný</span>
       <span><i class="sw bio"    style="background:#6b3b00"></i> Bio</span>
       <span><i class="sw papir"  style="background:#0057ff"></i> Papír</span>
@@ -183,152 +176,35 @@
   // ======= DATA: Zábřeh – Trasy I–IV (2025) =======
   const EVENTS = {
     I: {
-      smesny: [
-        "2025-01-22",
-        "2025-02-05","2025-02-19",
-        "2025-03-05","2025-03-19",
-        "2025-04-02","2025-04-16","2025-04-30",
-        "2025-05-14","2025-05-28",
-        "2025-06-11","2025-06-25",
-        "2025-07-09","2025-07-23",
-        "2025-08-06","2025-08-20",
-        "2025-09-03","2025-09-17",
-        "2025-10-01","2025-10-15","2025-10-29",
-        "2025-11-12","2025-11-26",
-        "2025-12-10","2025-12-23"
-      ],
-      plasty: [
-        "2025-02-12","2025-04-09","2025-06-04",
-        "2025-08-13","2025-10-08","2025-12-03"
-      ],
-      papir: [
-        "2025-01-15","2025-03-12","2025-05-07",
-        "2025-07-02","2025-09-10","2025-11-05"
-      ],
-      bio: [
-        "2025-04-02","2025-04-16","2025-04-30",
-        "2025-05-14","2025-05-28",
-        "2025-06-11","2025-06-25",
-        "2025-07-09","2025-07-23",
-        "2025-08-06","2025-08-20",
-        "2025-09-03","2025-09-17",
-        "2025-10-01","2025-10-15","2025-10-29"
-      ],
-      sklo: [],
-      kovy: []
+      smesny: ["2025-01-22","2025-02-05","2025-02-19","2025-03-05","2025-03-19","2025-04-02","2025-04-16","2025-04-30","2025-05-14","2025-05-28","2025-06-11","2025-06-25","2025-07-09","2025-07-23","2025-08-06","2025-08-20","2025-09-03","2025-09-17","2025-10-01","2025-10-15","2025-10-29","2025-11-12","2025-11-26","2025-12-10","2025-12-23"],
+      plasty: ["2025-02-12","2025-04-09","2025-06-04","2025-08-13","2025-10-08","2025-12-03"],
+      papir: ["2025-01-15","2025-03-12","2025-05-07","2025-07-02","2025-09-10","2025-11-05"],
+      bio: ["2025-04-02","2025-04-16","2025-04-30","2025-05-14","2025-05-28","2025-06-11","2025-06-25","2025-07-09","2025-07-23","2025-08-06","2025-08-20","2025-09-03","2025-09-17","2025-10-01","2025-10-15","2025-10-29"],
+      sklo: [], kovy: []
     },
     II: {
-      smesny: [
-        "2025-01-23",
-        "2025-02-06","2025-02-20",
-        "2025-03-06","2025-03-20",
-        "2025-04-03","2025-04-17",
-        "2025-05-01","2025-05-15","2025-05-29",
-        "2025-06-12","2025-06-26",
-        "2025-07-10","2025-07-24",
-        "2025-08-07","2025-08-21",
-        "2025-09-04","2025-09-18",
-        "2025-10-02","2025-10-16","2025-10-30",
-        "2025-11-13","2025-11-27",
-        "2025-12-11","2025-12-27"
-      ],
-      plasty: [
-        "2025-02-13","2025-04-10","2025-06-05",
-        "2025-08-14","2025-10-09","2025-12-04"
-      ],
-      papir: [
-        "2025-01-16","2025-03-13","2025-05-08",
-        "2025-07-03","2025-09-11","2025-11-06"
-      ],
-      bio: [
-        "2025-04-03","2025-04-17",
-        "2025-05-01","2025-05-15","2025-05-29",
-        "2025-06-12","2025-06-26",
-        "2025-07-10","2025-07-24",
-        "2025-08-07","2025-08-21",
-        "2025-09-04","2025-09-18",
-        "2025-10-02","2025-10-16","2025-10-30"
-      ],
-      sklo: [],
-      kovy: []
+      smesny: ["2025-01-23","2025-02-06","2025-02-20","2025-03-06","2025-03-20","2025-04-03","2025-04-17","2025-05-01","2025-05-15","2025-05-29","2025-06-12","2025-06-26","2025-07-10","2025-07-24","2025-08-07","2025-08-21","2025-09-04","2025-09-18","2025-10-02","2025-10-16","2025-10-30","2025-11-13","2025-11-27","2025-12-11","2025-12-27"],
+      plasty: ["2025-02-13","2025-04-10","2025-06-05","2025-08-14","2025-10-09","2025-12-04"],
+      papir: ["2025-01-16","2025-03-13","2025-05-08","2025-07-03","2025-09-11","2025-11-06"],
+      bio: ["2025-04-03","2025-04-17","2025-05-01","2025-05-15","2025-05-29","2025-06-12","2025-06-26","2025-07-10","2025-07-24","2025-08-07","2025-08-21","2025-09-04","2025-09-18","2025-10-02","2025-10-16","2025-10-30"],
+      sklo: [], kovy: []
     },
     III: {
-      smesny: [
-        "2025-01-08","2025-01-24",
-        "2025-02-07","2025-02-21",
-        "2025-03-07","2025-03-21",
-        "2025-04-04","2025-04-18",
-        "2025-05-02","2025-05-16","2025-05-30",
-        "2025-06-13","2025-06-27",
-        "2025-07-11","2025-07-25",
-        "2025-08-08","2025-08-22",
-        "2025-09-05","2025-09-19",
-        "2025-10-03","2025-10-17","2025-10-31",
-        "2025-11-14","2025-11-28",
-        "2025-12-12","2025-12-30"
-      ],
-      plasty: [
-        "2025-01-09","2025-03-06","2025-05-01",
-        "2025-07-03","2025-09-04","2025-11-06"
-      ],
-      papir: [
-        "2025-01-02","2025-01-30",
-        "2025-02-27","2025-03-27","2025-04-24","2025-05-22",
-        "2025-06-19","2025-07-17","2025-08-14","2025-09-11",
-        "2025-10-09","2025-11-06","2025-12-04"
-      ],
-      bio: [
-        "2025-04-04","2025-04-18",
-        "2025-05-02","2025-05-16","2025-05-30",
-        "2025-06-13","2025-06-27",
-        "2025-07-11","2025-07-25",
-        "2025-08-08","2025-08-22",
-        "2025-09-05","2025-09-19",
-        "2025-10-03","2025-10-17","2025-10-31"
-      ],
-      sklo: [],
-      kovy: []
+      smesny: ["2025-01-08","2025-01-24","2025-02-07","2025-02-21","2025-03-07","2025-03-21","2025-04-04","2025-04-18","2025-05-02","2025-05-16","2025-05-30","2025-06-13","2025-06-27","2025-07-11","2025-07-25","2025-08-08","2025-08-22","2025-09-05","2025-09-19","2025-10-03","2025-10-17","2025-10-31","2025-11-14","2025-11-28","2025-12-12","2025-12-30"],
+      plasty: ["2025-01-09","2025-03-06","2025-05-01","2025-07-03","2025-09-04","2025-11-06"],
+      papir: ["2025-01-02","2025-01-30","2025-02-27","2025-03-27","2025-04-24","2025-05-22","2025-06-19","2025-07-17","2025-08-14","2025-09-11","2025-10-09","2025-11-06","2025-12-04"],
+      bio: ["2025-04-04","2025-04-18","2025-05-02","2025-05-16","2025-05-30","2025-06-13","2025-06-27","2025-07-11","2025-07-25","2025-08-08","2025-08-22","2025-09-05","2025-09-19","2025-10-03","2025-10-17","2025-10-31"],
+      sklo: [], kovy: []
     },
     IV: {
-      smesny: [
-        "2025-01-09","2025-01-28",
-        "2025-02-11","2025-02-25",
-        "2025-03-11","2025-03-25",
-        "2025-04-08","2025-04-22",
-        "2025-05-06","2025-05-20",
-        "2025-06-03","2025-06-17",
-        "2025-07-01","2025-07-15","2025-07-29",
-        "2025-08-12","2025-08-26",
-        "2025-09-09","2025-09-23",
-        "2025-10-07","2025-10-21",
-        "2025-11-04","2025-11-18",
-        "2025-12-02","2025-12-16","2025-12-30"
-      ],
-      plasty: [
-        "2025-01-10","2025-03-07","2025-05-02",
-        "2025-07-04","2025-09-05","2025-11-07"
-      ],
-      papir: [
-        "2025-01-03","2025-01-31",
-        "2025-02-28","2025-03-28","2025-04-25","2025-05-23",
-        "2025-06-20","2025-07-18","2025-08-15","2025-09-12",
-        "2025-10-10","2025-11-07","2025-12-05"
-      ],
-      bio: [
-        "2025-04-08","2025-04-22",
-        "2025-05-06","2025-05-20",
-        "2025-06-03","2025-06-17",
-        "2025-07-01","2025-07-15","2025-07-29",
-        "2025-08-12","2025-08-26",
-        "2025-09-09","2025-09-23",
-        "2025-10-07","2025-10-21"
-      ],
-      sklo: [],
-      kovy: []
+      smesny: ["2025-01-09","2025-01-28","2025-02-11","2025-02-25","2025-03-11","2025-03-25","2025-04-08","2025-04-22","2025-05-06","2025-05-20","2025-06-03","2025-06-17","2025-07-01","2025-07-15","2025-07-29","2025-08-12","2025-08-26","2025-09-09","2025-09-23","2025-10-07","2025-10-21","2025-11-04","2025-11-18","2025-12-02","2025-12-16","2025-12-30"],
+      plasty: ["2025-01-10","2025-03-07","2025-05-02","2025-07-04","2025-09-05","2025-11-07"],
+      papir: ["2025-01-03","2025-01-31","2025-02-28","2025-03-28","2025-04-25","2025-05-23","2025-06-20","2025-07-18","2025-08-15","2025-09-12","2025-10-10","2025-11-07","2025-12-05"],
+      bio: ["2025-04-08","2025-04-22","2025-05-06","2025-05-20","2025-06-03","2025-06-17","2025-07-01","2025-07-15","2025-07-29","2025-08-12","2025-08-26","2025-09-09","2025-09-18","2025-09-23","2025-10-07","2025-10-21"],
+      sklo: [], kovy: []
     }
   };
 
-  // ======= UI / Logika =======
   const monthNames = ["Leden","Únor","Březen","Duben","Květen","Červen","Červenec","Srpen","Září","Říjen","Listopad","Prosinec"];
 
   const monthSel = document.getElementById("monthSel");
@@ -361,7 +237,6 @@
     yearSel.appendChild(opt);
   }
 
-  // Výchozí: aktuální měsíc, Trasa I (je první v seznamu)
   let selMonth = NOW_MONTH;
   let selYear  = NOW_YEAR;
   let currentTrasa = trasaSel.value || "I";
@@ -375,16 +250,13 @@
 
   function render(y, m){
     body.classList.add('fading');
-
     setTimeout(() => {
       label.textContent = monthNames[m] + " " + y;
       body.innerHTML = "";
-
       const daysInMonth = new Date(y, m+1, 0).getDate();
       const first = new Date(y, m, 1);
-      let startIdx = first.getDay(); // 0=Ne .. 6=So
-      startIdx = (startIdx === 0 ? 6 : startIdx - 1); // Po=0 .. Ne=6
-
+      let startIdx = first.getDay();
+      startIdx = (startIdx === 0 ? 6 : startIdx - 1);
       let day = 1;
       for(let row=0; row<6; row++){
         const tr = document.createElement("tr");
@@ -396,14 +268,11 @@
             const d = String(day).padStart(2,"0");
             const mm = String(m+1).padStart(2,"0");
             const key = `${y}-${mm}-${d}`;
-
             if (key === TODAY_KEY) td.classList.add('today');
-
             const top = document.createElement("div");
             top.className = "daynum";
             top.textContent = day;
             td.appendChild(top);
-
             ["smesny","plasty","papir","bio","sklo","kovy"].forEach(type=>{
               if (EVENTS[currentTrasa][type].includes(key)){
                 if (col >= 5) td.classList.add('has-event');
@@ -414,7 +283,6 @@
                 td.appendChild(a);
               }
             });
-
             day++;
           }
           tr.appendChild(td);
@@ -422,7 +290,6 @@
         body.appendChild(tr);
         if(day > daysInMonth) break;
       }
-
       resizeCalendar();
       requestAnimationFrame(() => body.classList.remove('fading'));
     }, 80);
@@ -447,31 +314,13 @@
 
   monthSel.addEventListener("change", () => { selMonth = +monthSel.value; render(selYear, selMonth); });
   yearSel.addEventListener("change",  () => { selYear  = +yearSel.value; render(selYear, selMonth); });
-
-  attachClickWithDbl(prevBtn,
-    () => { selMonth--; if (selMonth < 0){ selMonth = 11; selYear--; } syncSelectors(); render(selYear, selMonth); },
-    () => { selYear--; syncSelectors(); render(selYear, selMonth); }
-  );
-  attachClickWithDbl(nextBtn,
-    () => { selMonth++; if (selMonth > 11){ selMonth = 0; selYear++; } syncSelectors(); render(selYear, selMonth); },
-    () => { selYear++; syncSelectors(); render(selYear, selMonth); }
-  );
-
-  todayBtn.addEventListener('click', () => {
-    selMonth = NOW_MONTH;
-    selYear  = NOW_YEAR;
-    syncSelectors(); render(selYear, selMonth);
-  });
-
-  trasaSel.addEventListener('change', () => {
-    currentTrasa = trasaSel.value;
-    render(selYear, selMonth);
-  });
-
+  attachClickWithDbl(prevBtn,()=>{ selMonth--; if (selMonth < 0){ selMonth = 11; selYear--; } syncSelectors(); render(selYear, selMonth); },()=>{ selYear--; syncSelectors(); render(selYear, selMonth); });
+  attachClickWithDbl(nextBtn,()=>{ selMonth++; if (selMonth > 11){ selMonth = 0; selYear++; } syncSelectors(); render(selYear, selMonth); },()=>{ selYear++; syncSelectors(); render(selYear, selMonth); });
+  todayBtn.addEventListener('click', () => { selMonth = NOW_MONTH; selYear  = NOW_YEAR; syncSelectors(); render(selYear, selMonth); });
+  trasaSel.addEventListener('change', () => { currentTrasa = trasaSel.value; render(selYear, selMonth); });
   window.addEventListener('resize', resizeCalendar);
   window.addEventListener('orientationchange', resizeCalendar);
 
-  // Export .ics jen pro aktuálně zvolenou trasu
   icsBtn.addEventListener("click",()=>{
     const lines = ["BEGIN:VCALENDAR","VERSION:2.0","CALSCALE:GREGORIAN","METHOD:PUBLISH"];
     const titleMap = {smesny:"Směsný odpad", plasty:"Plasty", papir:"Papír", bio:"Bio", sklo:"Sklo", kovy:"Kovy"};
