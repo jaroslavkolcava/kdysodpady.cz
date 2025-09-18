@@ -30,6 +30,8 @@
       display:flex; flex-direction:column; gap:8px;
       flex:1; min-height:0;
     }
+
+    /* horní lišta: ICS vlevo — měsíc uprostřed — Trasa vpravo */
     .topbar {
       display:flex; justify-content:space-between; align-items:center;
       margin:8px 0 12px; padding:0 10px;
@@ -37,89 +39,139 @@
     .month-label {
       font-size:28px; font-weight:700; text-align:center; flex:1;
     }
-    .ics-btn, .trasa-sel {
-      border:2px solid #2563eb; border-radius:8px;
-      padding:6px 12px; font-size:14px; font-weight:600;
-      cursor:pointer;
+    .btn, .select {
+      border-radius:8px; padding:6px 12px; font-size:14px; font-weight:600; cursor:pointer;
     }
-    .ics-btn { background:#2563eb; color:#fff; }
-    .ics-btn:hover { background:#1e4f9b; }
-    .trasa-sel { background:#fff; color:#2563eb; }
+    .btn-primary {
+      border:2px solid #2563eb; background:#2563eb; color:#fff;
+      transition:background .2s;
+    }
+    .btn-primary:hover { background:#1e4f9b; }
+    .select { border:2px solid #2563eb; background:#fff; color:#2563eb; }
 
     .toolbar{
-      display:flex; gap:10px; justify-content:center; flex-wrap:wrap
+      display:flex; gap:10px; justify-content:center; align-items:center;
+      margin:0; color:#111827; flex-wrap:wrap
     }
     .toolbar select, .toolbar button{
       border:1px solid var(--border); background:#fff; border-radius:8px;
       padding:8px 10px; font-size:14px; cursor:pointer
     }
+    .toolbar button{min-width:42px}
 
-    .legend{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:4px 0}
-    .legend span{display:inline-flex; align-items:center; gap:8px;}
-    .legend .sw{width:18px; height:10px; border-radius:999px}
+    .legend{
+      display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:4px 0 4px
+    }
+    .legend span{display:inline-flex; align-items:center; gap:8px; color:#111827}
+    .legend .sw{display:inline-block; width:18px; height:10px; border-radius:999px}
 
-    #calBox{flex:1; min-height:0; overflow:hidden; display:flex;}
+    #calBox{
+      flex:1;
+      min-height:0;
+      overflow:hidden;
+      display:flex;
+    }
     .calendar{
-      width:100%; border-collapse:collapse; table-layout:fixed;
-      height:var(--cal-h); background:#fff;
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+      height: var(--cal-h);
+      background:#fff;
     }
     .calendar th, .calendar td{
-      border:1px solid var(--border); text-align:left; vertical-align:top;
-      width:14.285%; padding:8px 8px 6px;
+      border:1px solid var(--border);
+      text-align:left; vertical-align:top; width:14.285%;
+      padding:8px 8px 6px 8px;
+      background:#fff;
     }
-    .calendar thead th{height:40px; background:#f9fafb; font-weight:600}
+    .calendar thead th {
+      height: 40px;
+      background:#f9fafb;
+      text-align:center; font-weight:600
+    }
     .calendar tbody td { height: calc((var(--cal-h) - 40px) / 6); }
-    .daynum{font-weight:600; margin-bottom:6px}
-    .event{display:block; margin:3px 0; padding:3px 8px; border-radius:8px;
-      color:#fff; font-size:13px; text-align:center;}
+
+    /* Víkendy */
+    .calendar thead th:nth-child(6),
+    .calendar thead th:nth-child(7){ color:#dc2626; }
+    .calendar tbody td:nth-child(6),
+    .calendar tbody td:nth-child(7){ background:#fef2f2; border-color:#f3d1d1; }
+    .calendar tbody td:nth-child(6).has-event,
+    .calendar tbody td:nth-child(7).has-event{ background:#fdecec; border-color:#efbdbd; }
+
+    .daynum{font-weight:600; color:#111827; margin-bottom:6px}
+    .event{
+      display:flex; justify-content:center; align-items:center;
+      margin:4px 0 0; padding:3px 8px; border-radius:10px;
+      color:#fff; font-size:13px; line-height:1.2; max-width:100%;
+      overflow:hidden; white-space:nowrap; text-overflow:ellipsis; text-align:center;
+    }
     .smesny{background:#111}
     .bio{background:#6b3b00}
     .papir{background:#0057ff}
     .plasty{background:#ffe600; color:#111; border:1px solid #d1a800}
     .sklo{background:#1c7c1a}
     .kovy{background:#7a7a7a}
-    .calendar td.today{box-shadow: inset 0 0 0 2px #2563eb;}
+
+    .calendar td.today{ box-shadow: inset 0 0 0 2px #2563eb; }
+    #calBody{ opacity:1; transition: opacity 160ms ease; }
+    #calBody.fading{ opacity:0; }
+
+    .title-line-1{ font-size:40px; font-weight:700; line-height:1.2; }
+    .title-line-2{ font-size:30px; font-weight:400; line-height:1.3; }
+    @media (max-width:720px){
+      .title-line-1{ font-size:30px; }
+      .title-line-2{ font-size:24px; }
+      .month-label{ font-size:24px; }
+    }
   </style>
 </head>
 <body>
   <h1>
-    <div style="font-size:36px;font-weight:700;">Zábřeh</div>
-    <div style="font-size:30px;font-weight:400;">Termíny svozu odpadu</div>
+    <div class="title-line-1">Zábřeh</div>
+    <div class="title-line-2">Termíny svozu odpadu</div>
   </h1>
 
-  <div class="wrap">
+  <div class="wrap" id="wrap">
     <div class="topbar">
-      <button id="icsBtn" class="ics-btn">Stáhnout .ics</button>
+      <!-- Vlevo export .ics (jen pro vybranou trasu) -->
+      <button id="icsBtn" class="btn btn-primary" title="Stáhnout kalendář pro vybranou trasu">Stáhnout .ics</button>
+
+      <!-- Uprostřed měsíc/rok -->
       <div id="monthLabel" class="month-label"></div>
-      <select id="trasaSel" class="trasa-sel">
-        <option value="I">Trasa I</option>
+
+      <!-- Vpravo výběr trasy -->
+      <select id="trasaSel" class="select" title="Vyberte trasu">
+        <option value="I" selected>Trasa I</option>
         <option value="II">Trasa II</option>
         <option value="III">Trasa III</option>
         <option value="IV">Trasa IV</option>
       </select>
     </div>
 
-    <div class="toolbar">
-      <button id="prevBtn">&#8592;</button>
-      <select id="monthSel"></select>
-      <select id="yearSel"></select>
-      <button id="nextBtn">&#8594;</button>
-      <button id="todayBtn">Dnes</button>
+    <div class="toolbar" id="toolbar">
+      <button id="prevBtn" title="Předchozí měsíc / dvojklik: rok zpět">&#8592;</button>
+      <select id="monthSel" aria-label="Měsíc"></select>
+      <select id="yearSel" aria-label="Rok"></select>
+      <button id="nextBtn" title="Další měsíc / dvojklik: rok vpřed">&#8594;</button>
+      <button id="todayBtn" title="Zpět na aktuální měsíc">Dnes</button>
     </div>
 
-    <div class="legend">
-      <span><i class="sw smesny"></i> Směsný</span>
-      <span><i class="sw bio"></i> Bio</span>
-      <span><i class="sw papir"></i> Papír</span>
-      <span><i class="sw plasty"></i> Plasty</span>
-      <span><i class="sw sklo"></i> Sklo</span>
-      <span><i class="sw kovy"></i> Kovy</span>
+    <div class="legend" aria-hidden="true">
+      <span><i class="sw smesny" style="background:#111"></i> Směsný</span>
+      <span><i class="sw bio"    style="background:#6b3b00"></i> Bio</span>
+      <span><i class="sw papir"  style="background:#0057ff"></i> Papír</span>
+      <span><i class="sw plasty" style="background:#ffe600;border:1px solid #d1a800"></i> Plasty</span>
+      <span><i class="sw sklo"   style="background:#1c7c1a"></i> Sklo</span>
+      <span><i class="sw kovy"   style="background:#7a7a7a"></i> Kovy</span>
     </div>
 
     <div id="calBox">
-      <table class="calendar">
+      <table class="calendar" id="cal">
         <thead>
-          <tr><th>Po</th><th>Út</th><th>St</th><th>Čt</th><th>Pá</th><th>So</th><th>Ne</th></tr>
+          <tr>
+            <th>Po</th><th>Út</th><th>St</th><th>Čt</th><th>Pá</th><th>So</th><th>Ne</th>
+          </tr>
         </thead>
         <tbody id="calBody"></tbody>
       </table>
@@ -128,100 +180,320 @@
 
 <script>
 (function(){
-  // === DATA pro Zábřeh – zatím prázdné, doplníme ===
+  // ======= DATA: Zábřeh – Trasy I–IV (2025) =======
   const EVENTS = {
-    I: { smesny:[], plasty:[], papir:[], bio:[], sklo:[], kovy:[] },
-    II:{ smesny:[], plasty:[], papir:[], bio:[], sklo:[], kovy:[] },
-    III:{ smesny:[], plasty:[], papir:[], bio:[], sklo:[], kovy:[] },
-    IV:{ smesny:[], plasty:[], papir:[], bio:[], sklo:[], kovy:[] }
+    I: {
+      smesny: [
+        "2025-01-22",
+        "2025-02-05","2025-02-19",
+        "2025-03-05","2025-03-19",
+        "2025-04-02","2025-04-16","2025-04-30",
+        "2025-05-14","2025-05-28",
+        "2025-06-11","2025-06-25",
+        "2025-07-09","2025-07-23",
+        "2025-08-06","2025-08-20",
+        "2025-09-03","2025-09-17",
+        "2025-10-01","2025-10-15","2025-10-29",
+        "2025-11-12","2025-11-26",
+        "2025-12-10","2025-12-23"
+      ],
+      plasty: [
+        "2025-02-12","2025-04-09","2025-06-04",
+        "2025-08-13","2025-10-08","2025-12-03"
+      ],
+      papir: [
+        "2025-01-15","2025-03-12","2025-05-07",
+        "2025-07-02","2025-09-10","2025-11-05"
+      ],
+      bio: [
+        "2025-04-02","2025-04-16","2025-04-30",
+        "2025-05-14","2025-05-28",
+        "2025-06-11","2025-06-25",
+        "2025-07-09","2025-07-23",
+        "2025-08-06","2025-08-20",
+        "2025-09-03","2025-09-17",
+        "2025-10-01","2025-10-15","2025-10-29"
+      ],
+      sklo: [],
+      kovy: []
+    },
+    II: {
+      smesny: [
+        "2025-01-23",
+        "2025-02-06","2025-02-20",
+        "2025-03-06","2025-03-20",
+        "2025-04-03","2025-04-17",
+        "2025-05-01","2025-05-15","2025-05-29",
+        "2025-06-12","2025-06-26",
+        "2025-07-10","2025-07-24",
+        "2025-08-07","2025-08-21",
+        "2025-09-04","2025-09-18",
+        "2025-10-02","2025-10-16","2025-10-30",
+        "2025-11-13","2025-11-27",
+        "2025-12-11","2025-12-27"
+      ],
+      plasty: [
+        "2025-02-13","2025-04-10","2025-06-05",
+        "2025-08-14","2025-10-09","2025-12-04"
+      ],
+      papir: [
+        "2025-01-16","2025-03-13","2025-05-08",
+        "2025-07-03","2025-09-11","2025-11-06"
+      ],
+      bio: [
+        "2025-04-03","2025-04-17",
+        "2025-05-01","2025-05-15","2025-05-29",
+        "2025-06-12","2025-06-26",
+        "2025-07-10","2025-07-24",
+        "2025-08-07","2025-08-21",
+        "2025-09-04","2025-09-18",
+        "2025-10-02","2025-10-16","2025-10-30"
+      ],
+      sklo: [],
+      kovy: []
+    },
+    III: {
+      smesny: [
+        "2025-01-08","2025-01-24",
+        "2025-02-07","2025-02-21",
+        "2025-03-07","2025-03-21",
+        "2025-04-04","2025-04-18",
+        "2025-05-02","2025-05-16","2025-05-30",
+        "2025-06-13","2025-06-27",
+        "2025-07-11","2025-07-25",
+        "2025-08-08","2025-08-22",
+        "2025-09-05","2025-09-19",
+        "2025-10-03","2025-10-17","2025-10-31",
+        "2025-11-14","2025-11-28",
+        "2025-12-12","2025-12-30"
+      ],
+      plasty: [
+        "2025-01-09","2025-03-06","2025-05-01",
+        "2025-07-03","2025-09-04","2025-11-06"
+      ],
+      papir: [
+        "2025-01-02","2025-01-30",
+        "2025-02-27","2025-03-27","2025-04-24","2025-05-22",
+        "2025-06-19","2025-07-17","2025-08-14","2025-09-11",
+        "2025-10-09","2025-11-06","2025-12-04"
+      ],
+      bio: [
+        "2025-04-04","2025-04-18",
+        "2025-05-02","2025-05-16","2025-05-30",
+        "2025-06-13","2025-06-27",
+        "2025-07-11","2025-07-25",
+        "2025-08-08","2025-08-22",
+        "2025-09-05","2025-09-19",
+        "2025-10-03","2025-10-17","2025-10-31"
+      ],
+      sklo: [],
+      kovy: []
+    },
+    IV: {
+      smesny: [
+        "2025-01-09","2025-01-28",
+        "2025-02-11","2025-02-25",
+        "2025-03-11","2025-03-25",
+        "2025-04-08","2025-04-22",
+        "2025-05-06","2025-05-20",
+        "2025-06-03","2025-06-17",
+        "2025-07-01","2025-07-15","2025-07-29",
+        "2025-08-12","2025-08-26",
+        "2025-09-09","2025-09-23",
+        "2025-10-07","2025-10-21",
+        "2025-11-04","2025-11-18",
+        "2025-12-02","2025-12-16","2025-12-30"
+      ],
+      plasty: [
+        "2025-01-10","2025-03-07","2025-05-02",
+        "2025-07-04","2025-09-05","2025-11-07"
+      ],
+      papir: [
+        "2025-01-03","2025-01-31",
+        "2025-02-28","2025-03-28","2025-04-25","2025-05-23",
+        "2025-06-20","2025-07-18","2025-08-15","2025-09-12",
+        "2025-10-10","2025-11-07","2025-12-05"
+      ],
+      bio: [
+        "2025-04-08","2025-04-22",
+        "2025-05-06","2025-05-20",
+        "2025-06-03","2025-06-17",
+        "2025-07-01","2025-07-15","2025-07-29",
+        "2025-08-12","2025-08-26",
+        "2025-09-09","2025-09-23",
+        "2025-10-07","2025-10-21"
+      ],
+      sklo: [],
+      kovy: []
+    }
   };
 
-  let currentTrasa = "I";
-
+  // ======= UI / Logika =======
   const monthNames = ["Leden","Únor","Březen","Duben","Květen","Červen","Červenec","Srpen","Září","Říjen","Listopad","Prosinec"];
-  const monthSel=document.getElementById("monthSel");
-  const yearSel=document.getElementById("yearSel");
-  const label=document.getElementById("monthLabel");
-  const body=document.getElementById("calBody");
-  const prevBtn=document.getElementById("prevBtn");
-  const nextBtn=document.getElementById("nextBtn");
-  const todayBtn=document.getElementById("todayBtn");
-  const calBox=document.getElementById("calBox");
-  const icsBtn=document.getElementById("icsBtn");
-  const trasaSel=document.getElementById("trasaSel");
 
-  const today=new Date();
-  const NOW_MONTH=today.getMonth();
-  const NOW_YEAR=today.getFullYear();
-  const TODAY_KEY=today.toISOString().slice(0,10);
+  const monthSel = document.getElementById("monthSel");
+  const yearSel = document.getElementById("yearSel");
+  const label = document.getElementById("monthLabel");
+  const body = document.getElementById("calBody");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const todayBtn= document.getElementById("todayBtn");
+  const calBox  = document.getElementById("calBox");
+  const icsBtn  = document.getElementById("icsBtn");
+  const trasaSel= document.getElementById("trasaSel");
 
-  for(let m=0;m<12;m++){let opt=document.createElement("option");opt.value=m;opt.textContent=monthNames[m];monthSel.appendChild(opt);}
-  for(let y=NOW_YEAR-3;y<=NOW_YEAR+3;y++){let opt=document.createElement("option");opt.value=y;opt.textContent=y;yearSel.appendChild(opt);}
-  let selMonth=NOW_MONTH, selYear=NOW_YEAR;
-  monthSel.value=selMonth; yearSel.value=selYear;
+  const today = new Date();
+  const NOW_MONTH = today.getMonth();
+  const NOW_YEAR  = today.getFullYear();
+  const TODAY_KEY = today.toISOString().slice(0,10);
 
-  function render(y,m){
-    label.textContent=monthNames[m]+" "+y;
-    body.innerHTML="";
-    const daysInMonth=new Date(y,m+1,0).getDate();
-    const first=new Date(y,m,1);
-    let startIdx=first.getDay(); startIdx=(startIdx===0?6:startIdx-1);
-    let day=1;
-    for(let r=0;r<6;r++){
-      const tr=document.createElement("tr");
-      for(let c=0;c<7;c++){
-        const td=document.createElement("td");
-        if((r===0&&c<startIdx)||day>daysInMonth){td.innerHTML="&nbsp;";}
-        else{
-          const d=String(day).padStart(2,"0");
-          const mm=String(m+1).padStart(2,"0");
-          const key=`${y}-${mm}-${d}`;
-          if(key===TODAY_KEY) td.classList.add("today");
-          const top=document.createElement("div"); top.className="daynum"; top.textContent=day; td.appendChild(top);
-          Object.keys(EVENTS[currentTrasa]).forEach(type=>{
-            if(EVENTS[currentTrasa][type].includes(key)){
-              const ev=document.createElement("span");
-              ev.className=`event ${type}`;
-              ev.textContent=type.charAt(0).toUpperCase()+type.slice(1);
-              td.appendChild(ev);
-            }
-          });
-          day++;
-        }
-        tr.appendChild(td);
-      }
-      body.appendChild(tr);
-      if(day>daysInMonth) break;
-    }
+  const CY = NOW_YEAR;
+  for (let m=0; m<12; m++){
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.textContent = monthNames[m];
+    monthSel.appendChild(opt);
   }
-  monthSel.addEventListener("change",()=>{selMonth=+monthSel.value;render(selYear,selMonth);});
-  yearSel.addEventListener("change",()=>{selYear=+yearSel.value;render(selYear,selMonth);});
-  prevBtn.addEventListener("click",()=>{selMonth--;if(selMonth<0){selMonth=11;selYear--;}monthSel.value=selMonth;yearSel.value=selYear;render(selYear,selMonth);});
-  nextBtn.addEventListener("click",()=>{selMonth++;if(selMonth>11){selMonth=0;selYear++;}monthSel.value=selMonth;yearSel.value=selYear;render(selYear,selMonth);});
-  todayBtn.addEventListener("click",()=>{selMonth=NOW_MONTH;selYear=NOW_YEAR;monthSel.value=selMonth;yearSel.value=selYear;render(selYear,selMonth);});
-  trasaSel.addEventListener("change",()=>{currentTrasa=trasaSel.value;render(selYear,selMonth);});
+  for (let y=CY-3; y<=CY+3; y++){
+    const opt = document.createElement("option");
+    opt.value = y;
+    opt.textContent = y;
+    yearSel.appendChild(opt);
+  }
 
-  // export .ics jen pro aktuální trasu
+  // Výchozí: aktuální měsíc, Trasa I (je první v seznamu)
+  let selMonth = NOW_MONTH;
+  let selYear  = NOW_YEAR;
+  let currentTrasa = trasaSel.value || "I";
+  monthSel.value = selMonth;
+  yearSel.value  = selYear;
+
+  function syncSelectors(){
+    monthSel.value = selMonth;
+    yearSel.value  = selYear;
+  }
+
+  function render(y, m){
+    body.classList.add('fading');
+
+    setTimeout(() => {
+      label.textContent = monthNames[m] + " " + y;
+      body.innerHTML = "";
+
+      const daysInMonth = new Date(y, m+1, 0).getDate();
+      const first = new Date(y, m, 1);
+      let startIdx = first.getDay(); // 0=Ne .. 6=So
+      startIdx = (startIdx === 0 ? 6 : startIdx - 1); // Po=0 .. Ne=6
+
+      let day = 1;
+      for(let row=0; row<6; row++){
+        const tr = document.createElement("tr");
+        for(let col=0; col<7; col++){
+          const td = document.createElement("td");
+          if ((row === 0 && col < startIdx) || day > daysInMonth){
+            td.innerHTML = "&nbsp;";
+          } else {
+            const d = String(day).padStart(2,"0");
+            const mm = String(m+1).padStart(2,"0");
+            const key = `${y}-${mm}-${d}`;
+
+            if (key === TODAY_KEY) td.classList.add('today');
+
+            const top = document.createElement("div");
+            top.className = "daynum";
+            top.textContent = day;
+            td.appendChild(top);
+
+            ["smesny","plasty","papir","bio","sklo","kovy"].forEach(type=>{
+              if (EVENTS[currentTrasa][type].includes(key)){
+                if (col >= 5) td.classList.add('has-event');
+                const a = document.createElement("span");
+                a.className = `event ${type}`;
+                a.textContent = (type==="smesny"?"Směsný":type.charAt(0).toUpperCase()+type.slice(1));
+                a.title = a.textContent;
+                td.appendChild(a);
+              }
+            });
+
+            day++;
+          }
+          tr.appendChild(td);
+        }
+        body.appendChild(tr);
+        if(day > daysInMonth) break;
+      }
+
+      resizeCalendar();
+      requestAnimationFrame(() => body.classList.remove('fading'));
+    }, 80);
+  }
+
+  function resizeCalendar(){
+    const available = Math.max(280, Math.floor(calBox.clientHeight));
+    document.documentElement.style.setProperty('--cal-h', available + 'px');
+  }
+
+  function attachClickWithDbl(element, onSingle, onDouble, delay = 250){
+    let timer = null;
+    element.addEventListener('click', () => {
+      if (timer) return;
+      timer = setTimeout(() => { onSingle(); timer = null; }, delay);
+    });
+    element.addEventListener('dblclick', () => {
+      if (timer) { clearTimeout(timer); timer = null; }
+      onDouble();
+    });
+  }
+
+  monthSel.addEventListener("change", () => { selMonth = +monthSel.value; render(selYear, selMonth); });
+  yearSel.addEventListener("change",  () => { selYear  = +yearSel.value; render(selYear, selMonth); });
+
+  attachClickWithDbl(prevBtn,
+    () => { selMonth--; if (selMonth < 0){ selMonth = 11; selYear--; } syncSelectors(); render(selYear, selMonth); },
+    () => { selYear--; syncSelectors(); render(selYear, selMonth); }
+  );
+  attachClickWithDbl(nextBtn,
+    () => { selMonth++; if (selMonth > 11){ selMonth = 0; selYear++; } syncSelectors(); render(selYear, selMonth); },
+    () => { selYear++; syncSelectors(); render(selYear, selMonth); }
+  );
+
+  todayBtn.addEventListener('click', () => {
+    selMonth = NOW_MONTH;
+    selYear  = NOW_YEAR;
+    syncSelectors(); render(selYear, selMonth);
+  });
+
+  trasaSel.addEventListener('change', () => {
+    currentTrasa = trasaSel.value;
+    render(selYear, selMonth);
+  });
+
+  window.addEventListener('resize', resizeCalendar);
+  window.addEventListener('orientationchange', resizeCalendar);
+
+  // Export .ics jen pro aktuálně zvolenou trasu
   icsBtn.addEventListener("click",()=>{
-    let ics="BEGIN:VCALENDAR\nVERSION:2.0\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n";
+    const lines = ["BEGIN:VCALENDAR","VERSION:2.0","CALSCALE:GREGORIAN","METHOD:PUBLISH"];
+    const titleMap = {smesny:"Směsný odpad", plasty:"Plasty", papir:"Papír", bio:"Bio", sklo:"Sklo", kovy:"Kovy"};
     Object.keys(EVENTS[currentTrasa]).forEach(type=>{
       EVENTS[currentTrasa][type].forEach(d=>{
-        ics+="BEGIN:VEVENT\n";
-        ics+=`SUMMARY:${type}\n`;
-        ics+=`DTSTART;VALUE=DATE:${d.replace(/-/g,"")}\n`;
-        ics+=`DTEND;VALUE=DATE:${d.replace(/-/g,"")}\n`;
-        ics+="END:VEVENT\n";
+        const ymd = d.replace(/-/g,"");
+        lines.push("BEGIN:VEVENT");
+        lines.push(`SUMMARY:${titleMap[type]||type}`);
+        lines.push(`DTSTART;VALUE=DATE:${ymd}`);
+        lines.push(`DTEND;VALUE=DATE:${ymd}`);
+        lines.push("END:VEVENT");
       });
     });
-    ics+="END:VCALENDAR";
-    const blob=new Blob([ics],{type:"text/calendar"});
+    lines.push("END:VCALENDAR");
+    const blob=new Blob([lines.join("\n")],{type:"text/calendar"});
     const a=document.createElement("a");
     a.href=URL.createObjectURL(blob);
     a.download=`svoz-zabreh-trasa-${currentTrasa}.ics`;
     a.click();
   });
 
-  render(selYear,selMonth);
+  render(selYear, selMonth);
 })();
 </script>
 </body>
